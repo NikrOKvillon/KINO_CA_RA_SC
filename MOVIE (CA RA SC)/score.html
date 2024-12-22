@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оценивание</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000000;
+        }
+
+        .image-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .editable {
+            color: red;
+            word-wrap: break-word;
+            overflow: hidden;
+            white-space: nowrap;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-sizing: border-box;
+            line-height: 1.2;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .editable.text2,
+        .editable.text3,
+        .editable.text4,
+        .editable.text5,
+        .editable.text6,
+        .editable.text7 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .editable.text9 {
+            font-family: 'Archivo Black', sans-serif;
+            font-weight: bold;
+            font-size: 90px;
+            pointer-events: none;
+        }
+
+        .area {
+            position: absolute;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .selection-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Потемнение экрана */
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .selection-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .selection-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 40px);
+            grid-gap: 10px;
+        }
+
+        .selection-buttons-three {
+            display: grid;
+            grid-template-columns: repeat(3, 40px);
+            grid-gap: 10px;
+        }
+
+        .selection-buttons-four {
+            display: grid;
+            grid-template-columns: repeat(4, 40px);
+            grid-gap: 10px;
+        }
+
+        .selection-button {
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .selection-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Новые стили для панели выбора цвета */
+        .color-picker {
+            position: fixed;
+            display: none;
+            flex-wrap: wrap;
+            top: 20%;
+            left: 36.4%;
+            width: 200px;
+            height: 100px;
+            justify-content: space-between;
+            z-index: 1010;
+            /* Чтобы цветовая панель была поверх потемневшего фона */
+        }
+
+        .color-row {
+            display: flex;
+            /* Добавлено для расположения элементов в строку */
+            margin-bottom: 10px;
+            /* Отступ между строками */
+        }
+
+        .color-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            /* Отступ между кругами */
+            cursor: pointer;
+        }
+
+        /* Кнопка для вызова панели выбора цвета */
+        .color-button {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .color-button:hover {
+            background-color: #0056b3;
+        }
+
+        .color-controls {
+            position: absolute;
+            top: 1%;
+            /* Измените значение, чтобы установить нужную высоту */
+            left: 39.1%;
+            /* Измените значение, чтобы установить нужную ширину */
+            width: 347px;
+            /* Можно настроить по вашему усмотрению */
+            height: 1px;
+            /* Можно настроить по вашему усмотрению */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .color-controls button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            /* Плавное изменение */
+        }
+
+        .color-controls button:hover {
+            background-color: #0056b3;
+        }
+
+        #text8 {
+            font-family: 'Archivo Black', sans-serif;
+            color: red;
+            /* Цвет для placeholder (текста по умолчанию) */
+            font-style: italic;
+            /* Для отображения как обычный placeholder */
+        }
+
+        #text8:empty {
+            color: red;
+            /* Если поле пустое, показываем placeholder */
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="image-container">
+        <img id="centeredImage" src="WWW.jpg" alt="Centered Image">
+
+        <!-- Области для текста -->
+        <div class="area" style="top: 14.1%; left: 56%; width: 110px; height: 50px;" onclick="showSelection('text1')">
+            <div class="editable" contenteditable="true" id="text1">ЕСТЬ/НЕТУ</div>
+        </div>
+        <div class="area" style="top: 22.7%; left: 56.1%; width: 60px; height: 65px;" onclick="showSelection('text2')">
+            <div class="editable text2" contenteditable="true" id="text2">0</div>
+        </div>
+        <div class="area" style="top: 32.7%; left: 56.1%; width: 60px; height: 65px;" onclick="showSelection('text3')">
+            <div class="editable text3" contenteditable="true" id="text3">0</div>
+        </div>
+        <div class="area" style="top: 42.7%; left: 56.1%; width: 60px; height: 65px;" onclick="showSelection('text4')">
+            <div class="editable text4" contenteditable="true" id="text4">0</div>
+        </div>
+        <div class="area" style="top: 52.8%; left: 56.1%; width: 60px; height: 65px;" onclick="showSelection('text5')">
+            <div class="editable text5" contenteditable="true" id="text5">0</div>
+        </div>
+        <div class="area" style="top: 62.8%; left: 56.1%; width: 60px; height: 65px;" onclick="showSelection('text6')">
+            <div class="editable text6" contenteditable="true" id="text6">0</div>
+        </div>
+        <div class="area" style="top: 72.8%; left: 56.1%; width: 60px; height: 65px;" onclick="showSelection('text7')">
+            <div class="editable text7" contenteditable="true" id="text7">0</div>
+        </div>
+        <div class="area" spellcheck="false" style="top: 5.2%; left: 39%; width: 347px; height: 53px;"
+            onclick="showSelection('text8')">
+            <div class="editable" contenteditable="true" id="text8" onfocus="clearPlaceholder()"
+                onblur="setPlaceholder()">Введите фильм</div>
+        </div>
+        <div class="area" style="top: 80.7%; left: 52.4%; width: 120px; height: 120px;">
+            <div class="editable text9" contenteditable="false" id="text9">00</div>
+        </div>
+
+        <div class="color-controls">
+            <button onclick="toggleColorPicker()">Цвет текста</button>
+            <button id="downloadButton" onclick="downloadImage()">Скачать изображение</button>
+            <button onclick="toggleBorderColorPicker()">Цвет обводки</button>
+        </div>
+
+
+
+        <div class="color-picker" id="colorPicker">
+            <!-- Строка 1: Красные оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffcccc;" onclick="changeColor('#ffcccc')"></div>
+                <div class="color-circle" style="background-color: #ff9999;" onclick="changeColor('#ff9999')"></div>
+                <div class="color-circle" style="background-color: #ff6666;" onclick="changeColor('#ff6666')"></div>
+                <div class="color-circle" style="background-color: #ff3333;" onclick="changeColor('#ff3333')"></div>
+                <div class="color-circle" style="background-color: #ff0000;" onclick="changeColor('#ff0000')"></div>
+                <div class="color-circle" style="background-color: #cc0000;" onclick="changeColor('#cc0000')"></div>
+                <div class="color-circle" style="background-color: #990000;" onclick="changeColor('#990000')"></div>
+                <div class="color-circle" style="background-color: #660000;" onclick="changeColor('#660000')"></div>
+                <div class="color-circle" style="background-color: #330000;" onclick="changeColor('#330000')"></div>
+            </div>
+
+            <!-- Строка 2: Оранжевые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffebcc;" onclick="changeColor('#ffebcc')"></div>
+                <div class="color-circle" style="background-color: #ffcc99;" onclick="changeColor('#ffcc99')"></div>
+                <div class="color-circle" style="background-color: #ffb366;" onclick="changeColor('#ffb366')"></div>
+                <div class="color-circle" style="background-color: #ff9933;" onclick="changeColor('#ff9933')"></div>
+                <div class="color-circle" style="background-color: #ff6600;" onclick="changeColor('#ff6600')"></div>
+                <div class="color-circle" style="background-color: #cc5200;" onclick="changeColor('#cc5200')"></div>
+                <div class="color-circle" style="background-color: #993d00;" onclick="changeColor('#993d00')"></div>
+                <div class="color-circle" style="background-color: #663300;" onclick="changeColor('#663300')"></div>
+                <div class="color-circle" style="background-color: #4d2600;" onclick="changeColor('#4d2600')"></div>
+            </div>
+
+            <!-- Строка 3: Желтые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffffcc;" onclick="changeColor('#ffffcc')"></div>
+                <div class="color-circle" style="background-color: #ffff99;" onclick="changeColor('#ffff99')"></div>
+                <div class="color-circle" style="background-color: #ffff66;" onclick="changeColor('#ffff66')"></div>
+                <div class="color-circle" style="background-color: #ffff33;" onclick="changeColor('#ffff33')"></div>
+                <div class="color-circle" style="background-color: #ffff00;" onclick="changeColor('#ffff00')"></div>
+                <div class="color-circle" style="background-color: #cccc00;" onclick="changeColor('#cccc00')"></div>
+                <div class="color-circle" style="background-color: #999900;" onclick="changeColor('#999900')"></div>
+                <div class="color-circle" style="background-color: #666600;" onclick="changeColor('#666600')"></div>
+                <div class="color-circle" style="background-color: #333300;" onclick="changeColor('#333300')"></div>
+            </div>
+
+            <!-- Строка 4: Зеленые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ccffcc;" onclick="changeColor('#ccffcc')"></div>
+                <div class="color-circle" style="background-color: #99ff99;" onclick="changeColor('#99ff99')"></div>
+                <div class="color-circle" style="background-color: #66ff66;" onclick="changeColor('#66ff66')"></div>
+                <div class="color-circle" style="background-color: #33ff33;" onclick="changeColor('#33ff33')"></div>
+                <div class="color-circle" style="background-color: #00ff00;" onclick="changeColor('#00ff00')"></div>
+                <div class="color-circle" style="background-color: #00cc00;" onclick="changeColor('#00cc00')"></div>
+                <div class="color-circle" style="background-color: #009900;" onclick="changeColor('#009900')"></div>
+                <div class="color-circle" style="background-color: #006600;" onclick="changeColor('#006600')"></div>
+                <div class="color-circle" style="background-color: #003300;" onclick="changeColor('#003300')"></div>
+            </div>
+
+            <!-- Строка 5: Голубые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ccf2ff;" onclick="changeColor('#ccf2ff')"></div>
+                <div class="color-circle" style="background-color: #99d6ff;" onclick="changeColor('#99d6ff')"></div>
+                <div class="color-circle" style="background-color: #66ccff;" onclick="changeColor('#66ccff')"></div>
+                <div class="color-circle" style="background-color: #33b3ff;" onclick="changeColor('#33b3ff')"></div>
+                <div class="color-circle" style="background-color: #0099ff;" onclick="changeColor('#0099ff')"></div>
+                <div class="color-circle" style="background-color: #0066cc;" onclick="changeColor('#0066cc')"></div>
+                <div class="color-circle" style="background-color: #0033cc;" onclick="changeColor('#0033cc')"></div>
+                <div class="color-circle" style="background-color: #001f99;" onclick="changeColor('#001f99')"></div>
+                <div class="color-circle" style="background-color: #000066;" onclick="changeColor('#000066')"></div>
+            </div>
+
+            <!-- Строка 6: Бирюзовые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #e6f7f7;" onclick="changeColor('#e6f7f7')"></div>
+                <div class="color-circle" style="background-color: #c2f0f0;" onclick="changeColor('#c2f0f0')"></div>
+                <div class="color-circle" style="background-color: #99e6e6;" onclick="changeColor('#99e6e6')"></div>
+                <div class="color-circle" style="background-color: #66cccc;" onclick="changeColor('#66cccc')"></div>
+                <div class="color-circle" style="background-color: #33b3b3;" onclick="changeColor('#33b3b3')"></div>
+                <div class="color-circle" style="background-color: #00b3b3;" onclick="changeColor('#00b3b3')"></div>
+                <div class="color-circle" style="background-color: #009999;" onclick="changeColor('#009999')"></div>
+                <div class="color-circle" style="background-color: #008080;" onclick="changeColor('#008080')"></div>
+                <div class="color-circle" style="background-color: #006666;" onclick="changeColor('#006666')"></div>
+            </div>
+
+
+            <!-- Строка 7: Фиолетовые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #f2e6ff;" onclick="changeColor('#f2e6ff')"></div>
+                <div class="color-circle" style="background-color: #d9b3ff;" onclick="changeColor('#d9b3ff')"></div>
+                <div class="color-circle" style="background-color: #d09fff;" onclick="changeColor('#d09fff')"></div>
+                <div class="color-circle" style="background-color: #b366ff;" onclick="changeColor('#b366ff')"></div>
+                <div class="color-circle" style="background-color: #9b33cc;" onclick="changeColor('#9b33cc')"></div>
+                <div class="color-circle" style="background-color: #8000ff;" onclick="changeColor('#8000ff')"></div>
+                <div class="color-circle" style="background-color: #6600cc;" onclick="changeColor('#6600cc')"></div>
+                <div class="color-circle" style="background-color: #4d0066;" onclick="changeColor('#4d0066')"></div>
+                <div class="color-circle" style="background-color: #3d004d;" onclick="changeColor('#3d004d')"></div>
+            </div>
+
+            <!-- Строка 8: Розовые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffe6f2;" onclick="changeColor('#ffe6f2')"></div>
+                <div class="color-circle" style="background-color: #ffb3d9;" onclick="changeColor('#ffb3d9')"></div>
+                <div class="color-circle" style="background-color: #ff66cc;" onclick="changeColor('#ff66cc')"></div>
+                <div class="color-circle" style="background-color: #ff3399;" onclick="changeColor('#ff3399')"></div>
+                <div class="color-circle" style="background-color: #ff00b3;" onclick="changeColor('#ff00b3')"></div>
+                <div class="color-circle" style="background-color: #cc0099;" onclick="changeColor('#cc0099')"></div>
+                <div class="color-circle" style="background-color: #990066;" onclick="changeColor('#990066')"></div>
+                <div class="color-circle" style="background-color: #660066;" onclick="changeColor('#660066')"></div>
+                <div class="color-circle" style="background-color: #330033;" onclick="changeColor('#330033')"></div>
+            </div>
+
+            <!-- Строка 9: Коричневые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #f2e6d9;" onclick="changeColor('#f2e6d9')"></div>
+                <div class="color-circle" style="background-color: #e6c29e;" onclick="changeColor('#e6c29e')"></div>
+                <div class="color-circle" style="background-color: #cc9966;" onclick="changeColor('#cc9966')"></div>
+                <div class="color-circle" style="background-color: #b3b37a;" onclick="changeColor('#b3b37a')"></div>
+                <div class="color-circle" style="background-color: #996633;" onclick="changeColor('#996633')"></div>
+                <div class="color-circle" style="background-color: #8b5e3c;" onclick="changeColor('#8b5e3c')"></div>
+                <div class="color-circle" style="background-color: #704c2f;" onclick="changeColor('#704c2f')"></div>
+                <div class="color-circle" style="background-color: #663300;" onclick="changeColor('#663300')"></div>
+                <div class="color-circle" style="background-color: #4c2a12;" onclick="changeColor('#4c2a12')"></div>
+            </div>
+
+            <!-- Строка 10: Оттенки серого и белого -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffffff;" onclick="changeColor('#ffffff')"></div>
+                <div class="color-circle" style="background-color: #f2f2f2;" onclick="changeColor('#f2f2f2')"></div>
+                <div class="color-circle" style="background-color: #d9d9d9;" onclick="changeColor('#d9d9d9')"></div>
+                <div class="color-circle" style="background-color: #b8b8b8;" onclick="changeColor('#b8b8b8')"></div>
+                <div class="color-circle" style="background-color: #b3b3b3;" onclick="changeColor('#b3b3b3')"></div>
+                <div class="color-circle" style="background-color: #808080;" onclick="changeColor('#808080')"></div>
+                <div class="color-circle" style="background-color: #404040;" onclick="changeColor('#404040')"></div>
+                <div class="color-circle" style="background-color: #1a1a1a;" onclick="changeColor('#1a1a1a')"></div>
+                <div class="color-circle" style="background-color: #000000;" onclick="changeColor('#000000')"></div>
+            </div>
+        </div>
+
+        <!-- ОБВОДКА -->
+        <div id="borderColorPicker" class="color-picker">
+            <!-- Строка 1: Красные оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffcccc;" onclick="changeBorderColor('#ffcccc')">
+                </div>
+                <div class="color-circle" style="background-color: #ff9999;" onclick="changeBorderColor('#ff9999')">
+                </div>
+                <div class="color-circle" style="background-color: #ff6666;" onclick="changeBorderColor('#ff6666')">
+                </div>
+                <div class="color-circle" style="background-color: #ff3333;" onclick="changeBorderColor('#ff3333')">
+                </div>
+                <div class="color-circle" style="background-color: #ff0000;" onclick="changeBorderColor('#ff0000')">
+                </div>
+                <div class="color-circle" style="background-color: #cc0000;" onclick="changeBorderColor('#cc0000')">
+                </div>
+                <div class="color-circle" style="background-color: #990000;" onclick="changeBorderColor('#990000')">
+                </div>
+                <div class="color-circle" style="background-color: #660000;" onclick="changeBorderColor('#660000')">
+                </div>
+                <div class="color-circle" style="background-color: #330000;" onclick="changeBorderColor('#330000')">
+                </div>
+            </div>
+
+            <!-- Строка 2: Оранжевые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffebcc;" onclick="changeBorderColor('#ffebcc')">
+                </div>
+                <div class="color-circle" style="background-color: #ffcc99;" onclick="changeBorderColor('#ffcc99')">
+                </div>
+                <div class="color-circle" style="background-color: #ffb366;" onclick="changeBorderColor('#ffb366')">
+                </div>
+                <div class="color-circle" style="background-color: #ff9933;" onclick="changeBorderColor('#ff9933')">
+                </div>
+                <div class="color-circle" style="background-color: #ff6600;" onclick="changeBorderColor('#ff6600')">
+                </div>
+                <div class="color-circle" style="background-color: #cc5200;" onclick="changeBorderColor('#cc5200')">
+                </div>
+                <div class="color-circle" style="background-color: #993d00;" onclick="changeBorderColor('#993d00')">
+                </div>
+                <div class="color-circle" style="background-color: #663300;" onclick="changeBorderColor('#663300')">
+                </div>
+                <div class="color-circle" style="background-color: #4d2600;" onclick="changeBorderColor('#4d2600')">
+                </div>
+            </div>
+
+            <!-- Строка 3: Желтые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffffcc;" onclick="changeBorderColor('#ffffcc')">
+                </div>
+                <div class="color-circle" style="background-color: #ffff99;" onclick="changeBorderColor('#ffff99')">
+                </div>
+                <div class="color-circle" style="background-color: #ffff66;" onclick="changeBorderColor('#ffff66')">
+                </div>
+                <div class="color-circle" style="background-color: #ffff33;" onclick="changeBorderColor('#ffff33')">
+                </div>
+                <div class="color-circle" style="background-color: #ffff00;" onclick="changeBorderColor('#ffff00')">
+                </div>
+                <div class="color-circle" style="background-color: #cccc00;" onclick="changeBorderColor('#cccc00')">
+                </div>
+                <div class="color-circle" style="background-color: #999900;" onclick="changeBorderColor('#999900')">
+                </div>
+                <div class="color-circle" style="background-color: #666600;" onclick="changeBorderColor('#666600')">
+                </div>
+                <div class="color-circle" style="background-color: #333300;" onclick="changeBorderColor('#333300')">
+                </div>
+            </div>
+
+            <!-- Строка 4: Зеленые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ccffcc;" onclick="changeBorderColor('#ccffcc')">
+                </div>
+                <div class="color-circle" style="background-color: #99ff99;" onclick="changeBorderColor('#99ff99')">
+                </div>
+                <div class="color-circle" style="background-color: #66ff66;" onclick="changeBorderColor('#66ff66')">
+                </div>
+                <div class="color-circle" style="background-color: #33ff33;" onclick="changeBorderColor('#33ff33')">
+                </div>
+                <div class="color-circle" style="background-color: #00ff00;" onclick="changeBorderColor('#00ff00')">
+                </div>
+                <div class="color-circle" style="background-color: #00cc00;" onclick="changeBorderColor('#00cc00')">
+                </div>
+                <div class="color-circle" style="background-color: #009900;" onclick="changeBorderColor('#009900')">
+                </div>
+                <div class="color-circle" style="background-color: #006600;" onclick="changeBorderColor('#006600')">
+                </div>
+                <div class="color-circle" style="background-color: #003300;" onclick="changeBorderColor('#003300')">
+                </div>
+            </div>
+
+            <!-- Строка 5: Голубые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ccf2ff;" onclick="changeBorderColor('#ccf2ff')">
+                </div>
+                <div class="color-circle" style="background-color: #99d6ff;" onclick="changeBorderColor('#99d6ff')">
+                </div>
+                <div class="color-circle" style="background-color: #66ccff;" onclick="changeBorderColor('#66ccff')">
+                </div>
+                <div class="color-circle" style="background-color: #33b3ff;" onclick="changeBorderColor('#33b3ff')">
+                </div>
+                <div class="color-circle" style="background-color: #0099ff;" onclick="changeBorderColor('#0099ff')">
+                </div>
+                <div class="color-circle" style="background-color: #0066cc;" onclick="changeBorderColor('#0066cc')">
+                </div>
+                <div class="color-circle" style="background-color: #0033cc;" onclick="changeBorderColor('#0033cc')">
+                </div>
+                <div class="color-circle" style="background-color: #001f99;" onclick="changeBorderColor('#001f99')">
+                </div>
+                <div class="color-circle" style="background-color: #000066;" onclick="changeBorderColor('#000066')">
+                </div>
+            </div>
+
+            <!-- Строка 6: Бирюзовые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #e6f7f7;" onclick="changeBorderColor('#e6f7f7')">
+                </div>
+                <div class="color-circle" style="background-color: #c2f0f0;" onclick="changeBorderColor('#c2f0f0')">
+                </div>
+                <div class="color-circle" style="background-color: #99e6e6;" onclick="changeBorderColor('#99e6e6')">
+                </div>
+                <div class="color-circle" style="background-color: #66cccc;" onclick="changeBorderColor('#66cccc')">
+                </div>
+                <div class="color-circle" style="background-color: #33b3b3;" onclick="changeBorderColor('#33b3b3')">
+                </div>
+                <div class="color-circle" style="background-color: #00b3b3;" onclick="changeBorderColor('#00b3b3')">
+                </div>
+                <div class="color-circle" style="background-color: #009999;" onclick="changeBorderColor('#009999')">
+                </div>
+                <div class="color-circle" style="background-color: #008080;" onclick="changeBorderColor('#008080')">
+                </div>
+                <div class="color-circle" style="background-color: #006666;" onclick="changeBorderColor('#006666')">
+                </div>
+            </div>
+
+
+            <!-- Строка 7: Фиолетовые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #f2e6ff;" onclick="changeBorderColor('#f2e6ff')">
+                </div>
+                <div class="color-circle" style="background-color: #d9b3ff;" onclick="changeBorderColor('#d9b3ff')">
+                </div>
+                <div class="color-circle" style="background-color: #d09fff;" onclick="changeBorderColor('#d09fff')">
+                </div>
+                <div class="color-circle" style="background-color: #b366ff;" onclick="changeBorderColor('#b366ff')">
+                </div>
+                <div class="color-circle" style="background-color: #9b33cc;" onclick="changeBorderColor('#9b33cc')">
+                </div>
+                <div class="color-circle" style="background-color: #8000ff;" onclick="changeBorderColor('#8000ff')">
+                </div>
+                <div class="color-circle" style="background-color: #6600cc;" onclick="changeBorderColor('#6600cc')">
+                </div>
+                <div class="color-circle" style="background-color: #4d0066;" onclick="changeBorderColor('#4d0066')">
+                </div>
+                <div class="color-circle" style="background-color: #3d004d;" onclick="changeBorderColor('#3d004d')">
+                </div>
+            </div>
+
+            <!-- Строка 8: Розовые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffe6f2;" onclick="changeBorderColor('#ffe6f2')">
+                </div>
+                <div class="color-circle" style="background-color: #ffb3d9;" onclick="changeBorderColor('#ffb3d9')">
+                </div>
+                <div class="color-circle" style="background-color: #ff66cc;" onclick="changeBorderColor('#ff66cc')">
+                </div>
+                <div class="color-circle" style="background-color: #ff3399;" onclick="changeBorderColor('#ff3399')">
+                </div>
+                <div class="color-circle" style="background-color: #ff00b3;" onclick="changeBorderColor('#ff00b3')">
+                </div>
+                <div class="color-circle" style="background-color: #cc0099;" onclick="changeBorderColor('#cc0099')">
+                </div>
+                <div class="color-circle" style="background-color: #990066;" onclick="changeBorderColor('#990066')">
+                </div>
+                <div class="color-circle" style="background-color: #660066;" onclick="changeBorderColor('#660066')">
+                </div>
+                <div class="color-circle" style="background-color: #330033;" onclick="changeBorderColor('#330033')">
+                </div>
+            </div>
+
+            <!-- Строка 9: Коричневые оттенки -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #f2e6d9;" onclick="changeBorderColor('#f2e6d9')">
+                </div>
+                <div class="color-circle" style="background-color: #e6c29e;" onclick="changeBorderColor('#e6c29e')">
+                </div>
+                <div class="color-circle" style="background-color: #cc9966;" onclick="changeBorderColor('#cc9966')">
+                </div>
+                <div class="color-circle" style="background-color: #b3b37a;" onclick="changeBorderColor('#b3b37a')">
+                </div>
+                <div class="color-circle" style="background-color: #996633;" onclick="changeBorderColor('#996633')">
+                </div>
+                <div class="color-circle" style="background-color: #8b5e3c;" onclick="changeBorderColor('#8b5e3c')">
+                </div>
+                <div class="color-circle" style="background-color: #704c2f;" onclick="changeBorderColor('#704c2f')">
+                </div>
+                <div class="color-circle" style="background-color: #663300;" onclick="changeBorderColor('#663300')">
+                </div>
+                <div class="color-circle" style="background-color: #4c2a12;" onclick="changeBorderColor('#4c2a12')">
+                </div>
+            </div>
+
+            <!-- Строка 10: Оттенки серого и белого -->
+            <div class="color-row">
+                <div class="color-circle" style="background-color: #ffffff;" onclick="changeBorderColor('#ffffff')">
+                </div>
+                <div class="color-circle" style="background-color: #f2f2f2;" onclick="changeBorderColor('#f2f2f2')">
+                </div>
+                <div class="color-circle" style="background-color: #d9d9d9;" onclick="changeBorderColor('#d9d9d9')">
+                </div>
+                <div class="color-circle" style="background-color: #b8b8b8;" onclick="changeBorderColor('#b8b8b8')">
+                </div>
+                <div class="color-circle" style="background-color: #b3b3b3;" onclick="changeBorderColor('#b3b3b3')">
+                </div>
+                <div class="color-circle" style="background-color: #808080;" onclick="changeBorderColor('#808080')">
+                </div>
+                <div class="color-circle" style="background-color: #404040;" onclick="changeBorderColor('#404040')">
+                </div>
+                <div class="color-circle" style="background-color: #1a1a1a;" onclick="changeBorderColor('#1a1a1a')">
+                </div>
+                <div class="color-circle" style="background-color: #000000;" onclick="changeBorderColor('#000000')">
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран выбора для Текста 1 -->
+        <div id="selectionScreen" class="selection-screen">
+            <div class="selection-content">
+                <button class="selection-button" onclick="selectOption('ЕСТЬ')">ЕСТЬ</button>
+                <button class="selection-button" onclick="selectOption('НЕТУ')">НЕТУ</button>
+            </div>
+        </div>
+
+        <!-- Экран выбора для Текста 2 (4 столбика, 4 числа в строке) -->
+        <div id="numericSelectionScreen2" class="selection-screen">
+            <div class="selection-content">
+                <div class="selection-buttons">
+                    <button class="selection-button" onclick="selectOption(0)">0</button>
+                    <button class="selection-button" onclick="selectOption(1)">1</button>
+                    <button class="selection-button" onclick="selectOption(2)">2</button>
+                    <button class="selection-button" onclick="selectOption(3)">3</button>
+
+                    <button class="selection-button" onclick="selectOption(4)">4</button>
+                    <button class="selection-button" onclick="selectOption(5)">5</button>
+                    <button class="selection-button" onclick="selectOption(6)">6</button>
+                    <button class="selection-button" onclick="selectOption(7)">7</button>
+
+                    <button class="selection-button" onclick="selectOption(8)">8</button>
+                    <button class="selection-button" onclick="selectOption(9)">9</button>
+                    <button class="selection-button" onclick="selectOption(10)">10</button>
+                    <button class="selection-button" onclick="selectOption(11)">11</button>
+
+                    <button class="selection-button" onclick="selectOption(12)">12</button>
+                    <button class="selection-button" onclick="selectOption(13)">13</button>
+                    <button class="selection-button" onclick="selectOption(14)">14</button>
+                    <button class="selection-button" onclick="selectOption(15)">15</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран выбора для Текста 3-5 (3 столбика, 7 чисел в строке) -->
+        <div id="numericSelectionScreen345" class="selection-screen">
+            <div class="selection-content">
+                <div class="selection-buttons-three">
+                    <button class="selection-button" onclick="selectOption(0)">0</button>
+                    <button class="selection-button" onclick="selectOption(1)">1</button>
+                    <button class="selection-button" onclick="selectOption(2)">2</button>
+                    <button class="selection-button" onclick="selectOption(3)">3</button>
+                    <button class="selection-button" onclick="selectOption(4)">4</button>
+                    <button class="selection-button" onclick="selectOption(5)">5</button>
+                    <button class="selection-button" onclick="selectOption(6)">6</button>
+
+                    <button class="selection-button" onclick="selectOption(7)">7</button>
+                    <button class="selection-button" onclick="selectOption(8)">8</button>
+                    <button class="selection-button" onclick="selectOption(9)">9</button>
+                    <button class="selection-button" onclick="selectOption(10)">10</button>
+                    <button class="selection-button" onclick="selectOption(11)">11</button>
+                    <button class="selection-button" onclick="selectOption(12)">12</button>
+                    <button class="selection-button" onclick="selectOption(13)">13</button>
+
+                    <button class="selection-button" onclick="selectOption(14)">14</button>
+                    <button class="selection-button" onclick="selectOption(15)">15</button>
+                    <button class="selection-button" onclick="selectOption(16)">16</button>
+                    <button class="selection-button" onclick="selectOption(17)">17</button>
+                    <button class="selection-button" onclick="selectOption(18)">18</button>
+                    <button class="selection-button" onclick="selectOption(19)">19</button>
+                    <button class="selection-button" onclick="selectOption(20)">20</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран выбора для Текста 6 (3 столбика, 4 числа в строке) -->
+        <div id="numericSelectionScreen6" class="selection-screen">
+            <div class="selection-content">
+                <div class="selection-buttons-four">
+                    <button class="selection-button" onclick="selectOption(0)">0</button>
+                    <button class="selection-button" onclick="selectOption(1)">1</button>
+                    <button class="selection-button" onclick="selectOption(2)">2</button>
+                    <button class="selection-button" onclick="selectOption(3)">3</button>
+
+                    <button class="selection-button" onclick="selectOption(4)">4</button>
+                    <button class="selection-button" onclick="selectOption(5)">5</button>
+                    <button class="selection-button" onclick="selectOption(6)">6</button>
+                    <button class="selection-button" onclick="selectOption(7)">7</button>
+
+                    <button class="selection-button" onclick="selectOption(8)">8</button>
+                    <button class="selection-button" onclick="selectOption(9)">9</button>
+                    <button class="selection-button" onclick="selectOption(10)">10</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран выбора для Текста 7 (4 столбика, 4 числа в строке) -->
+        <div id="numericSelectionScreen7" class="selection-screen">
+            <div class="selection-content">
+                <div class="selection-buttons">
+                    <button class="selection-button" onclick="selectOption(0)">0</button>
+                    <button class="selection-button" onclick="selectOption(1)">1</button>
+                    <button class="selection-button" onclick="selectOption(2)">2</button>
+                    <button class="selection-button" onclick="selectOption(3)">3</button>
+
+                    <button class="selection-button" onclick="selectOption(4)">4</button>
+                    <button class="selection-button" onclick="selectOption(5)">5</button>
+                    <button class="selection-button" onclick="selectOption(6)">6</button>
+                    <button class="selection-button" onclick="selectOption(7)">7</button>
+
+                    <button class="selection-button" onclick="selectOption(8)">8</button>
+                    <button class="selection-button" onclick="selectOption(9)">9</button>
+                    <button class="selection-button" onclick="selectOption(10)">10</button>
+                    <button class="selection-button" onclick="selectOption(11)">11</button>
+
+                    <button class="selection-button" onclick="selectOption(12)">12</button>
+                    <button class="selection-button" onclick="selectOption(13)">13</button>
+                    <button class="selection-button" onclick="selectOption(14)">14</button>
+                    <button class="selection-button" onclick="selectOption(15)">15</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let currentTextId = '';
+
+            // Функция для отображения экрана выбора
+            function showSelection(textId) {
+                currentTextId = textId;
+
+                if (textId === 'text1') {
+                    document.getElementById('selectionScreen').style.display = 'flex';
+                } else if (textId === 'text2') {
+                    document.getElementById('numericSelectionScreen2').style.display = 'flex';
+                } else if (textId === 'text3' || textId === 'text4' || textId === 'text5') {
+                    document.getElementById('numericSelectionScreen345').style.display = 'flex';
+                } else if (textId === 'text6') {
+                    document.getElementById('numericSelectionScreen6').style.display = 'flex';
+                } else if (textId === 'text7') {
+                    document.getElementById('numericSelectionScreen7').style.display = 'flex';
+                }
+            }
+
+            // Функция для выбора значения
+            function selectOption(value) {
+                const textElement = document.getElementById(currentTextId);
+
+                if (currentTextId === 'text1') {
+                    textElement.textContent = value;
+                } else if (currentTextId === 'text2' || currentTextId === 'text3' || currentTextId === 'text4' || currentTextId === 'text5' || currentTextId === 'text6' || currentTextId === 'text7') {
+                    textElement.textContent = value;
+                    updateSum(); // Обновляем сумму при изменении текста
+                }
+
+                // Скрываем экраны после выбора
+                document.getElementById('selectionScreen').style.display = 'none';
+                document.getElementById('numericSelectionScreen2').style.display = 'none';
+                document.getElementById('numericSelectionScreen345').style.display = 'none';
+                document.getElementById('numericSelectionScreen6').style.display = 'none';
+                document.getElementById('numericSelectionScreen7').style.display = 'none';
+
+                adjustTextSize(textElement); // Адаптируем размер текста
+            }
+
+            // Функция для обновления суммы
+            function updateSum() {
+                let sum = 0;
+                for (let i = 2; i <= 7; i++) {
+                    const textElement = document.getElementById('text' + i);
+                    const value = parseInt(textElement.textContent.trim()) || 0;
+                    sum += value;
+                }
+
+                // Обновляем текст 9 с ведущими нулями, если необходимо
+                const text9 = document.getElementById('text9');
+                text9.textContent = sum < 10 ? '0' + sum : sum.toString();
+            }
+
+            // Для Текста 8 - автоматическое уменьшение текста, если он выходит за пределы
+            const text8Element = document.getElementById("text8");
+            text8Element.addEventListener("input", function () {
+                adjustTextSize(this);
+            });
+
+            // Обработчик вставки текста в text8 (очищаем форматирование и применяем свои стили)
+            text8Element.addEventListener("paste", function (event) {
+                event.preventDefault(); // Предотвращаем стандартное поведение вставки
+
+                // Получаем текст из буфера обмена
+                const text = (event.clipboardData || window.clipboardData).getData('text');
+
+                // Вставляем только текст, без форматирования
+                document.execCommand('insertText', false, text);
+
+                // Применяем стили, соответствующие вашему тексту
+                text8Element.style.fontFamily = 'YourPreferredFont'; // Замените на ваш шрифт
+                text8Element.style.fontSize = 'YourPreferredFontSize'; // Замените на ваш размер шрифта
+                text8Element.style.color = 'YourPreferredColor'; // Замените на ваш цвет
+
+                // Адаптируем размер текста после вставки
+                adjustTextSize(this);
+            });
+
+            // Функция для адаптации текста в области
+            function adjustTextSize(element) {
+                const area = element.parentElement;
+                const areaWidth = area.offsetWidth;
+                const areaHeight = area.offsetHeight;
+
+                // Получаем размеры текста
+                const textWidth = element.scrollWidth;
+                const textHeight = element.scrollHeight;
+
+                // Рассчитываем масштаб, чтобы текст заполнил область
+                const scaleX = areaWidth / textWidth;
+                const scaleY = areaHeight / textHeight;
+
+                // Выбираем минимальный масштаб для сохранения пропорций
+                const scale = Math.min(scaleX, scaleY);
+
+                // Применяем масштаб
+                element.style.transform = `scale(${scale})`;
+            }
+
+            function clearPlaceholder() {
+                const text8Element = document.getElementById("text8");
+
+                // Сохраняем текущий цвет текста
+                const currentColor = text8Element.style.color;
+
+                // Если фокус на поле и текст равен placeholder
+                if (text8Element.textContent === "Введите фильм") {
+                    text8Element.textContent = ""; // Убираем placeholder
+                }
+
+                // Оставляем цвет неизменным, если уже был задан
+                text8Element.style.color = currentColor || "red";
+                text8Element.style.fontStyle = "normal"; // Убираем курсив
+                text8Element.style.fontWeight = "bold"; // Делаем текст жирным
+            }
+
+            function setPlaceholder() {
+                const text8Element = document.getElementById("text8");
+
+                // Если поле пустое, восстанавливаем placeholder
+                if (text8Element.textContent.trim() === "") {
+                    text8Element.textContent = "Введите фильм";
+                    text8Element.style.color = "red"; // Цвет placeholder
+                    text8Element.style.fontStyle = "italic"; // Восстанавливаем курсив
+                    text8Element.style.fontWeight = "normal"; // Убираем жирность
+                }
+            }
+
+            let isColorPickerVisible = false; // Флаг для проверки видимости пикера цвета
+            let isBorderColorPickerVisible = false; // Флаг для проверки видимости пикера обводки
+
+            function toggleColorPicker() {
+                const colorPicker = document.getElementById('colorPicker');
+
+                if (!isColorPickerVisible) {
+                    colorPicker.style.display = 'flex';
+                    isColorPickerVisible = true; // Показываем пикер
+                } else {
+                    colorPicker.style.display = 'none';
+                    isColorPickerVisible = false; // Скрываем пикер
+                }
+            }
+
+            function toggleBorderColorPicker() {
+                const borderColorPicker = document.getElementById('borderColorPicker');
+
+                if (!isBorderColorPickerVisible) {
+                    borderColorPicker.style.display = 'flex';
+                    isBorderColorPickerVisible = true; // Показываем пикер обводки
+                } else {
+                    borderColorPicker.style.display = 'none';
+                    isBorderColorPickerVisible = false; // Скрываем пикер обводки
+                }
+            }
+
+            function changeColor(color) {
+                const textElement = document.getElementById(currentTextId);
+
+                if (currentTextId === 'text8') {
+                    const text9 = document.getElementById('text9');
+                    textElement.style.color = color;
+                    text9.style.color = color; // Применяем тот же цвет к text9
+                } else {
+                    textElement.style.color = color;
+                }
+
+                // Закрываем пикер цвета после выбора
+                document.getElementById('colorPicker').style.display = 'none';
+                isColorPickerVisible = false; // Скрываем пикер
+            }
+
+            function changeBorderColor(color) {
+                const textElement = document.getElementById(currentTextId);
+
+                if (currentTextId === 'text8') {
+                    const text9 = document.getElementById('text9');
+                    textElement.style.webkitTextStroke = `0.7px ${color}`;
+                    textElement.style.textStroke = `0.7px ${color}`;
+                    text9.style.webkitTextStroke = `4px ${color}`; // Применяем ту же обводку к text9
+                    text9.style.textStroke = `4px ${color}`;
+                } else {
+                    textElement.style.webkitTextStroke = `0.75px ${color}`;
+                    textElement.style.textStroke = `0.75px ${color}`;
+                }
+
+                // Закрываем пикер обводки после выбора
+                document.getElementById('borderColorPicker').style.display = 'none';
+                isBorderColorPickerVisible = false; // Скрываем пикер
+            }
+
+            // Пример: вызываем syncText при изменении текста в text8
+            document.getElementById('text8').addEventListener('input', syncText);
+
+            function downloadImage() {
+                const container = document.querySelector('.image-container'); // Контейнер с изображением и текстом
+                const colorControls = document.querySelector('.color-controls'); // Контейнер кнопок
+
+                // Скрыть кнопки
+                colorControls.style.display = 'none';
+
+                // Создать canvas с нужными размерами и центровать изображение
+                html2canvas(container, {
+                    width: 490,  // Устанавливаем ширину изображения
+                    height: 780, // Устанавливаем высоту изображения
+                    x: (container.offsetWidth - 490) / 2, // Центрируем по оси X
+                    y: (container.offsetHeight - 780) / 2, // Центрируем по оси Y
+                    scale: 1,    // Масштабируем изображение
+                }).then(canvas => {
+                    // Создать ссылку для скачивания
+                    const link = document.createElement('a');
+                    link.download = 'film.png'; // Имя скачиваемого файла
+                    link.href = canvas.toDataURL('film/png'); // Преобразование canvas в изображение
+                    link.click(); // Симулируем клик для скачивания
+
+                    // Показать кнопки обратно
+                    colorControls.style.display = 'flex';
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>
